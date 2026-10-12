@@ -1,0 +1,16 @@
+{
+  "name": "Barra Al-Salfa",
+  "short_name": "Barra Al-Salfa",
+  "description": "Everyone knows the secret word except one. Find the outsider.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f0c21",
+  "theme_color": "#0f0c21",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -3,71 +3,666 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Barra Al-Salfa · برا السالفة</title>
-<meta name="description" content="Barra Al-Salfa: everyone knows the secret word except one. Coming soon to Game Night.">
+<title>Barra Al-Salfa</title>
+<meta name="description" content="Everyone knows the secret word except one. Find the outsider before they figure it out. A pass-and-play party game for 4 to 12 players.">
 <meta name="theme-color" content="#0f0c21">
 <meta name="color-scheme" content="dark">
-<link rel="icon" type="image/png" href="/khatfa/icons/favicon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <style>
 /* Same "game night" look as Draft Night and Khatfa. Fonts come from the Khatfa site (same domain, SIL OFL). */
 @font-face{font-family:'Anton';font-weight:400;font-display:swap;src:url(/khatfa/fonts/anton-latin-400-normal.woff2) format('woff2')}
 @font-face{font-family:'Barlow';font-weight:600;font-display:swap;src:url(/khatfa/fonts/barlow-latin-600-normal.woff2) format('woff2')}
 @font-face{font-family:'Barlow Semi Condensed';font-weight:800;font-display:swap;src:url(/khatfa/fonts/barlow-semi-condensed-latin-800-normal.woff2) format('woff2')}
-@font-face{font-family:'Cairo';font-weight:800;font-display:swap;src:url(/khatfa/fonts/cairo-arabic-800-normal.woff2) format('woff2')}
-:root{--ink:#0f0c21;--panel:#221d47;--panel2:#2c2659;--line:#3d3672;--text:#f8f3e6;--muted:#aca4d2;--c:#ff6b8a;--c-deep:#d63d61;--c-ink:#2a0712}
+:root{
+  --ink:#0f0c21;--panel:#221d47;--panel2:#2c2659;--line:#3d3672;--text:#f8f3e6;--muted:#aca4d2;--dim:#7a6e98;
+  --c:#ff6b8a;--c-deep:#d63d61;--c-ink:#2a0712;
+  --good:#3ee08f;--good-deep:#1fa866;--bad:#ff5a5a;--gold:#ffc83d;--gold-deep:#e9a400;--gold-ink:#291c00;
+  --head:'Anton',sans-serif;--cond:'Barlow Semi Condensed','Barlow',sans-serif;
+}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;font-synthesis:none}
-body{margin:0;min-height:100vh;background:var(--ink);color:var(--text);font-family:'Barlow','Cairo',system-ui,sans-serif;font-weight:600;-webkit-tap-highlight-color:transparent}
+body{margin:0;min-height:100vh;min-height:100dvh;background:var(--ink);color:var(--text);font-family:'Barlow',system-ui,sans-serif;font-weight:600;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
 body::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(120% 60% at 50% -10%,rgba(255,107,138,.18),transparent 60%),radial-gradient(90% 50% at 50% 110%,rgba(120,90,255,.18),transparent 70%)}
-main{position:relative;max-width:520px;margin:0 auto;min-height:100vh;padding:max(28px,env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:22px}
-.back{align-self:flex-start;color:var(--muted);text-decoration:none;font-family:'Barlow Semi Condensed',sans-serif;font-weight:800;font-size:16px;padding:6px 2px}
-.back:hover{color:var(--text)}
-.back:focus-visible{outline:3px solid var(--text);outline-offset:3px;border-radius:6px}
-header{text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:8px}
-.mark{width:96px;height:96px;border-radius:26px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 25%,var(--panel2));border:3px solid var(--c);font-family:'Anton',sans-serif;font-size:58px;color:var(--c);box-shadow:0 6px 0 var(--c-deep);animation:bob 2.6s ease-in-out infinite}
+#app{position:relative;max-width:520px;margin:0 auto;min-height:100vh;min-height:100dvh;padding:max(20px,env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:18px}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-user-select:none;user-select:none}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--text);outline-offset:3px}
+h1,h2{margin:0;font-family:var(--head);font-weight:400;text-transform:uppercase;letter-spacing:.02em;line-height:.98}
+h1{font-size:clamp(50px,15vw,78px);text-shadow:0 4px 0 #000,0 0 40px rgba(255,107,138,.35)}
+h2{font-size:clamp(34px,10vw,46px);text-shadow:0 3px 0 #000}
+p{margin:0}
+.center{text-align:center}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.grow{flex:1}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;gap:10px;align-items:center}
+
+/* top bar */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:40px}
+.link{background:none;border:0;padding:6px 2px;color:var(--muted);font-family:var(--cond);font-weight:800;font-size:16px;text-decoration:none}
+.link:hover{color:var(--text)}
+.pill{font-family:var(--cond);font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--panel);border:2px solid var(--line);padding:4px 12px;border-radius:30px}
+
+/* buttons */
+.btn{display:block;width:100%;border:0;border-radius:18px;padding:16px 18px;font-family:var(--cond);font-weight:800;font-size:22px;letter-spacing:.03em;text-transform:uppercase;background:var(--c);color:var(--c-ink);box-shadow:0 6px 0 var(--c-deep);transition:transform .08s,box-shadow .08s,filter .15s;text-align:center;text-decoration:none}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--c-deep)}
+.btn:hover{filter:brightness(1.06)}
+.btn[disabled]{opacity:.4;cursor:not-allowed;transform:none;box-shadow:0 6px 0 var(--c-deep)}
+.btn.ghost{background:var(--panel);color:var(--text);box-shadow:0 6px 0 #0a0818;border:2px solid var(--line)}
+.btn.gold{background:var(--gold);color:var(--gold-ink);box-shadow:0 6px 0 var(--gold-deep)}
+.btn.sm{font-size:17px;padding:11px 14px;border-radius:14px}
+
+/* cards */
+.card{padding:16px;border-radius:22px;border:3px solid var(--line);background:linear-gradient(165deg,var(--panel2),var(--panel))}
+.card.hot{border-color:var(--c);background:linear-gradient(165deg,color-mix(in srgb,var(--c) 16%,var(--panel)),var(--panel))}
+.label{font-family:var(--cond);font-weight:800;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--c);margin-bottom:8px}
+
+/* home */
+.hero{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding-top:6vh}
+.mark{width:104px;height:104px;border-radius:28px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 25%,var(--panel2));border:3px solid var(--c);font-family:var(--head);font-size:64px;color:var(--c);box-shadow:0 6px 0 var(--c-deep);animation:bob 2.6s ease-in-out infinite}
 @keyframes bob{50%{transform:translateY(-6px) rotate(-4deg)}}
-h1{margin:4px 0 0;font-family:'Anton',sans-serif;font-weight:400;font-size:clamp(46px,14vw,72px);line-height:.95;letter-spacing:.02em;text-transform:uppercase;text-shadow:0 4px 0 #000,0 0 40px rgba(255,107,138,.35)}
-h1 .ar{display:block;margin-top:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:clamp(30px,9vw,44px);line-height:1.3;color:var(--c);text-transform:none;letter-spacing:0}
-.tag{display:inline-block;background:var(--c);color:var(--c-ink);font-family:'Barlow Semi Condensed','Cairo',sans-serif;font-weight:800;font-size:18px;letter-spacing:.06em;text-transform:uppercase;padding:5px 16px;border-radius:30px;transform:rotate(-3deg);box-shadow:0 5px 0 var(--c-deep)}
-.sub{margin:4px 0 0;color:var(--muted);font-size:17px;line-height:1.4;max-width:32ch}
-.card{padding:16px 18px;border-radius:22px;border:3px dashed var(--c);background:linear-gradient(165deg,color-mix(in srgb,var(--c) 12%,var(--panel)),var(--panel));font-size:15px;line-height:1.45}
-.card h2{margin:0 0 8px;font-family:'Barlow Semi Condensed',sans-serif;font-weight:800;font-size:18px;color:var(--c);text-transform:uppercase;letter-spacing:.04em}
-.card ol{margin:0;padding-inline-start:22px}
-.card li{margin-bottom:6px}
-.card p{margin:0}
-.ar-line{font-family:'Cairo',sans-serif;font-weight:800;text-align:center;font-size:17px;line-height:1.7;color:var(--text);margin:0}
-footer{margin-top:auto;text-align:center;font-size:13px;color:#7a6e98}
-@media (prefers-reduced-motion:reduce){.mark{animation:none}}
+.tagline{color:var(--muted);font-size:18px;line-height:1.4;max-width:30ch}
+.rules ol{margin:0;padding-inline-start:22px;line-height:1.45}
+.rules li{margin-bottom:8px}
+.rules p{line-height:1.45}
+
+/* setup */
+.add{display:flex;gap:8px}
+.add input{flex:1;min-width:0;font:inherit;font-size:18px;color:var(--text);background:var(--ink);border:2px solid var(--line);border-radius:14px;padding:12px 14px}
+.add input::placeholder{color:var(--dim)}
+.add .btn{width:auto;flex:none}
+.names{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.name{display:inline-flex;align-items:center;gap:6px;background:var(--ink);border:2px solid var(--line);border-radius:30px;padding:6px 6px 6px 14px;font-size:16px}
+.name button{width:28px;height:28px;border-radius:50%;border:0;background:var(--panel2);color:var(--muted);font-size:16px;line-height:1;display:grid;place-items:center}
+.name button:hover{color:var(--text);background:var(--line)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--line);background:var(--ink);color:var(--muted);border-radius:30px;padding:8px 14px;font-size:15px}
+.chip[aria-pressed="true"]{border-color:var(--c);background:color-mix(in srgb,var(--c) 22%,var(--ink));color:var(--text)}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;background:var(--ink);border:2px solid var(--line);border-radius:16px;padding:4px}
+.seg button{border:0;border-radius:12px;background:transparent;color:var(--muted);padding:10px 4px;font-family:var(--cond);font-weight:800;font-size:17px}
+.seg button[aria-pressed="true"]{background:var(--c);color:var(--c-ink)}
+.seg button[disabled]{opacity:.35;cursor:not-allowed}
+.hint{font-size:14px;color:var(--dim);margin-top:8px}
+
+/* reveal */
+.pass{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center}
+.pass .who{font-family:var(--head);font-size:clamp(48px,16vw,80px);text-transform:uppercase;line-height:1;color:var(--gold);text-shadow:0 4px 0 #000;word-break:break-word}
+.secret{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;border-radius:26px;border:3px solid var(--c);padding:28px 18px;background:linear-gradient(165deg,color-mix(in srgb,var(--c) 18%,var(--panel)),var(--panel))}
+.secret.out{border-color:var(--gold);background:linear-gradient(165deg,color-mix(in srgb,var(--gold) 16%,var(--panel)),var(--panel))}
+.secret .cat{font-family:var(--cond);font-weight:800;font-size:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.secret .word{font-family:var(--head);font-size:clamp(44px,14vw,72px);text-transform:uppercase;line-height:1;text-shadow:0 4px 0 #000;word-break:break-word}
+.secret.out .word{color:var(--gold)}
+.dots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--c)}
+
+/* ask */
+.timer{height:12px;border-radius:10px;background:var(--panel);border:2px solid var(--line);overflow:hidden}
+.timer b{display:block;height:100%;background:var(--c);transition:width 1s linear}
+.timer.low b{background:var(--bad)}
+.clock{font-family:var(--cond);font-weight:800;font-size:20px;font-variant-numeric:tabular-nums}
+.clock.low{color:var(--bad)}
+.asks{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center}
+.asks .nm{font-family:var(--head);font-size:clamp(42px,13vw,66px);text-transform:uppercase;line-height:1;text-shadow:0 4px 0 #000;word-break:break-word}
+.asks .a{color:var(--gold)}
+.asks .t{color:var(--c)}
+.asks .verb{font-family:var(--cond);font-weight:800;font-size:20px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.timesup{font-family:var(--head);font-size:34px;color:var(--bad);text-transform:uppercase;animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.45}}
+
+/* vote + guess grids */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{border:3px solid var(--line);background:var(--panel);border-radius:18px;padding:16px 10px;font-family:var(--cond);font-weight:800;font-size:19px;text-transform:uppercase;letter-spacing:.02em;word-break:break-word;transition:transform .08s}
+.opt:active{transform:scale(.97)}
+.opt[aria-pressed="true"]{border-color:var(--c);background:color-mix(in srgb,var(--c) 26%,var(--panel))}
+.opt.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 24%,var(--panel))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 22%,var(--panel))}
+
+/* results */
+.verdict{text-align:center;padding:22px 16px;border-radius:24px;border:3px solid var(--line);background:var(--panel)}
+.verdict.win{border-color:var(--good);background:linear-gradient(165deg,color-mix(in srgb,var(--good) 18%,var(--panel)),var(--panel))}
+.verdict.lose{border-color:var(--gold);background:linear-gradient(165deg,color-mix(in srgb,var(--gold) 16%,var(--panel)),var(--panel))}
+.verdict .big{font-family:var(--head);font-size:clamp(36px,11vw,54px);text-transform:uppercase;line-height:1;text-shadow:0 3px 0 #000}
+.verdict .wordwas{margin-top:12px;color:var(--muted)}
+.verdict .wordwas b{color:var(--text);font-family:var(--head);font-weight:400;font-size:26px;text-transform:uppercase;letter-spacing:.02em;display:block;margin-top:2px}
+.lines{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.lines li{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 14px;border-radius:14px;background:var(--ink);border:2px solid var(--line);font-size:16px}
+.lines li .pts{font-family:var(--cond);font-weight:800;font-size:18px;color:var(--good);flex:none}
+.lines li.top{border-color:var(--gold)}
+.lines li.top .pts{color:var(--gold)}
+.lines li .tagout{font-family:var(--cond);font-weight:800;font-size:12px;letter-spacing:.06em;text-transform:uppercase;background:var(--gold);color:var(--gold-ink);padding:2px 8px;border-radius:12px;margin-inline-start:8px}
+
+.foot{display:flex;flex-direction:column;gap:12px;margin-top:auto;padding-top:6px}
+.fade{animation:fade .22s ease-out}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}}
+@media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<main>
-  <a class="back" href="/">← Game Night</a>
-  <header>
-    <div class="mark" aria-hidden="true">?</div>
-    <h1>Barra Al&#8209;Salfa<span class="ar" lang="ar">برا السالفة</span></h1>
-    <span class="tag">Coming soon</span>
-    <p class="sub">Everyone knows the secret word except one. Find the outsider before they figure it out.</p>
-  </header>
+<main id="app" aria-live="polite"></main>
+<noscript><p style="text-align:center;padding:24px">This game needs JavaScript turned on.</p></noscript>
+<script>
+'use strict';
 
-  <section class="card" aria-labelledby="how">
-    <h2 id="how">How it'll work</h2>
-    <ol>
-      <li><strong>Pass the phone.</strong> Each player taps to see the secret word, or "You're out of the loop!"</li>
-      <li><strong>Ask around.</strong> Take turns asking each other questions. Be vague enough to fool the outsider, specific enough to prove you know it.</li>
-      <li><strong>Vote.</strong> Point at who you think is out of the loop.</li>
-      <li><strong>Last chance.</strong> A caught outsider can still win by guessing the word.</li>
-    </ol>
-  </section>
+/* ======================================================================
+   GAME NAME — change it here (and in <title>, manifest.webmanifest,
+   and the Game Night hub card) if you rename the game.
+   ====================================================================== */
+const GAME_NAME = 'Barra Al-Salfa';
 
-  <section class="card" aria-labelledby="extras">
-    <h2 id="extras">Planned</h2>
-    <p>4 to 12 players on one phone. Arabic and English word packs (food, places, football, jobs and more), two outsiders for big groups, a round timer, and scores across rounds.</p>
-  </section>
+/* ---------------------------------------------------------------------
+   Word packs. Every category needs at least 8 words (the outsider's
+   last guess shows 8 options from the same category).
+   --------------------------------------------------------------------- */
+const PACKS = {
+  'Food': ['Pizza','Sushi','Burger','Tacos','Pancakes','Lasagna','Fried chicken','Ice cream','Popcorn','Poutine','Ramen','Burrito','Hot dog','Spaghetti','Cheesecake','Donut','Nachos','Steak','Waffles','Croissant','Mac and cheese','Butter chicken','Smoothie','Chocolate cake'],
+  'Places': ['Airport','Hospital','Library','Beach','Gym','Movie theatre','School','Shopping mall','Zoo','Museum','Bank','Hotel','Stadium','Car wash','Barber shop','Gas station','Bowling alley','Theme park','Subway station','Farm','Campsite','Police station','Dentist’s office','Water park'],
+  'Jobs': ['Doctor','Teacher','Pilot','Chef','Firefighter','Police officer','Dentist','Plumber','Lawyer','Barber','Mechanic','Delivery driver','Electrician','Nurse','Astronaut','Referee','Cashier','Photographer','Farmer','Accountant','Lifeguard','Architect','DJ','Security guard'],
+  'Animals': ['Lion','Penguin','Giraffe','Shark','Elephant','Cat','Dog','Camel','Kangaroo','Eagle','Snake','Dolphin','Monkey','Horse','Bear','Owl','Crocodile','Frog','Rabbit','Octopus','Zebra','Parrot','Turtle','Wolf'],
+  'Sports': ['Basketball','Tennis','Boxing','Swimming','Golf','Cricket','Hockey','Volleyball','Baseball','Bowling','Skiing','Cycling','Formula 1','Badminton','Wrestling','Table tennis','Surfing','Skateboarding','Archery','Rugby','Karate','Marathon','Gymnastics','Darts'],
+  'Football': ['Penalty kick','Offside','Goalkeeper','Red card','World Cup','Free kick','Corner kick','Hat-trick','VAR','Captain’s armband','Transfer window','Header','Bicycle kick','Own goal','Stoppage time','Substitute','Champions League','Derby','Clean sheet','Nutmeg','Golden Boot','Throw-in','Yellow card','Penalty shootout'],
+  'At home': ['Fridge','Sofa','TV remote','Microwave','Toothbrush','Pillow','Washing machine','Lamp','Mirror','Toaster','Vacuum','Kettle','Bathtub','Alarm clock','Curtains','Oven','Bookshelf','Laundry basket','Ceiling fan','Doorbell','Wardrobe','Phone charger','Dishwasher','Doormat'],
+  'Tech': ['Smartphone','Laptop','Headphones','Game console','Wi-Fi','Smartwatch','Keyboard','Drone','Printer','VR headset','Selfie stick','Power bank','Webcam','Tablet','Bluetooth speaker','USB stick','Password','Emoji','Group chat','Notification','Screenshot','Airplane mode','Dark mode','Battery saver'],
+  'Countries': ['Canada','Japan','Brazil','Italy','France','Mexico','Egypt','India','Australia','Spain','Germany','China','Argentina','USA','England','Turkey','Greece','South Korea','Portugal','Morocco','Jamaica','Nigeria','Switzerland','Iceland']
+};
+const CATS = Object.keys(PACKS);
 
-  <p class="ar-line" lang="ar" dir="rtl">الكل يعرف الكلمة إلا واحد. اسألوا بعض، واكتشفوا مين برا السالفة قبل لا يعرف الكلمة!</p>
+const MIN_PLAYERS = 4, MAX_PLAYERS = 12, TWO_OUT_MIN = 7;
+const TIMERS = [0, 180, 300, 480];
+const PTS = { escape: 3, caughtGuessed: 2, insiderCatch: 1 };
 
-  <footer>Made for game nights with friends.</footer>
-</main>
+/* ---------- storage (best effort; the game works without it) ---------- */
+const KEY = 'barra-al-salfa:v1';
+function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
+function save() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify({ players: S.players, scores: S.scores, cats: S.cats, outsiders: S.outsiders, timer: S.timer, rounds: S.rounds }));
+  } catch (e) {}
+}
+
+/* ---------- state ---------- */
+const saved = load();
+const S = {
+  players: Array.isArray(saved.players) ? saved.players.slice(0, MAX_PLAYERS) : [],
+  scores: saved.scores && typeof saved.scores === 'object' ? saved.scores : {},
+  cats: Array.isArray(saved.cats) && saved.cats.filter(c => PACKS[c]).length ? saved.cats.filter(c => PACKS[c]) : CATS.slice(),
+  outsiders: saved.outsiders === 2 ? 2 : 1,
+  timer: TIMERS.includes(saved.timer) ? saved.timer : 300,
+  rounds: saved.rounds | 0,
+  used: {},          // category -> words already played this session
+  round: null,
+  screen: 'home'
+};
+
+/* ---------- helpers ---------- */
+const $ = (sel) => document.querySelector(sel);
+const esc = (s) => String(s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+const rand = (n) => Math.floor(Math.random() * n);
+const pick = (arr) => arr[rand(arr.length)];
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rand(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const buzz = (ms) => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
+function outsidersAllowed() { return S.players.length >= TWO_OUT_MIN ? S.outsiders : 1; }
+
+function render(html) {
+  const app = $('#app');
+  app.innerHTML = html;
+  app.classList.remove('fade'); void app.offsetWidth; app.classList.add('fade');
+  window.scrollTo(0, 0);
+  const f = app.querySelector('[data-autofocus]');
+  if (f) f.focus({ preventScroll: true });
+}
+function go(screen) { S.screen = screen; stopTimer(); SCREENS[screen](); }
+
+const quitBtn = '<button class="link" data-act="quit">✕ Quit round</button>';
+
+/* ======================================================================
+   Screens
+   ====================================================================== */
+const SCREENS = {
+  home() {
+    const hasGame = S.players.length >= MIN_PLAYERS && S.rounds > 0;
+    render(`
+      <div class="bar"><a class="link" href="/">← Game Night</a><span class="pill">4–12 players</span></div>
+      <div class="hero">
+        <div class="mark" aria-hidden="true">?</div>
+        <h1>${esc(GAME_NAME).replace(/-/g, '\u2011')}</h1>
+        <p class="tagline">Everyone knows the secret word except one. Find the outsider before they figure it out.</p>
+      </div>
+      <div class="foot">
+        ${hasGame ? '<button class="btn" data-act="continue">Continue game</button>' : ''}
+        <button class="btn ${hasGame ? 'ghost' : ''}" data-act="setup">${hasGame ? 'New game' : 'Play'}</button>
+        <button class="btn ghost" data-act="how">How to play</button>
+      </div>`);
+  },
+
+  how() {
+    render(`
+      <div class="bar"><button class="link" data-act="home">← Back</button></div>
+      <h2>How to play</h2>
+      <div class="card rules">
+        <ol>
+          <li><strong>Pass the phone.</strong> Everyone secretly sees the same word and its category, except the outsider, who only sees the category.</li>
+          <li><strong>Ask around.</strong> The phone tells you who asks whom. Ask a question about the word. Be vague enough that the outsider can’t work it out, but specific enough to prove you know it.</li>
+          <li><strong>Vote.</strong> When time’s up (or whenever you’re ready), point at who you think the outsider is and tap them.</li>
+          <li><strong>Last chance.</strong> A caught outsider can still steal the round by picking the word from 8 options.</li>
+        </ol>
+      </div>
+      <div class="card rules">
+        <div class="label">Points</div>
+        <p>Outsider not caught: <strong>+${PTS.escape}</strong> to the outsider.<br>
+        Caught, but guesses the word: <strong>+${PTS.caughtGuessed}</strong> to the outsider.<br>
+        Caught and guesses wrong: <strong>+${PTS.insiderCatch}</strong> to every insider.</p>
+      </div>
+      <div class="card rules">
+        <div class="label">Tips</div>
+        <p>If you’re the outsider, listen first and blend in. If you’re not, don’t give the word away. With 7+ players you can turn on two outsiders. They don’t know about each other.</p>
+      </div>
+      <div class="foot"><button class="btn" data-act="setup">Play</button></div>`);
+  },
+
+  setup() {
+    const n = S.players.length;
+    const canTwo = n >= TWO_OUT_MIN;
+    const ready = n >= MIN_PLAYERS && S.cats.length > 0;
+    const allOn = S.cats.length === CATS.length;
+    render(`
+      <div class="bar"><button class="link" data-act="home">← Back</button><span class="pill">${n}/${MAX_PLAYERS} players</span></div>
+      <h2>Set up</h2>
+
+      <section class="card">
+        <div class="label">Players</div>
+        <form class="add" data-form="add" autocomplete="off">
+          <input id="nameIn" maxlength="14" placeholder="${n >= MAX_PLAYERS ? 'Room is full' : 'Add a name'}" ${n >= MAX_PLAYERS ? 'disabled' : ''} aria-label="Player name" ${n < MIN_PLAYERS ? 'data-autofocus' : ''}>
+          <button class="btn sm" type="submit" ${n >= MAX_PLAYERS ? 'disabled' : ''}>Add</button>
+        </form>
+        ${n ? `<div class="names">${S.players.map((p, i) => `<span class="name">${esc(p)}<button data-act="rm" data-i="${i}" aria-label="Remove ${esc(p)}">✕</button></span>`).join('')}</div>` : ''}
+        <p class="hint" id="nameHint">${n < MIN_PLAYERS ? `Add at least ${MIN_PLAYERS - n} more.` : 'Order doesn’t matter; the app shuffles turns.'}</p>
+      </section>
+
+      <section class="card">
+        <div class="label">Categories</div>
+        <div class="chips">
+          <button class="chip" data-act="allcats" aria-pressed="${allOn}">All</button>
+          ${CATS.map(c => `<button class="chip" data-act="cat" data-c="${esc(c)}" aria-pressed="${!allOn && S.cats.includes(c)}">${esc(c)}</button>`).join('')}
+        </div>
+        <p class="hint">${allOn ? 'A random category each round.' : `Picking from ${S.cats.length} categor${S.cats.length === 1 ? 'y' : 'ies'}.`}</p>
+      </section>
+
+      <section class="card">
+        <div class="label">Outsiders</div>
+        <div class="seg">
+          <button data-act="outs" data-v="1" aria-pressed="${outsidersAllowed() === 1}">1</button>
+          <button data-act="outs" data-v="2" aria-pressed="${outsidersAllowed() === 2}" ${canTwo ? '' : 'disabled'}>2</button>
+        </div>
+        <p class="hint">${canTwo ? 'Two outsiders don’t know about each other.' : `Two outsiders unlocks at ${TWO_OUT_MIN} players.`}</p>
+      </section>
+
+      <section class="card">
+        <div class="label">Question time</div>
+        <div class="seg">
+          ${TIMERS.map(t => `<button data-act="timer" data-v="${t}" aria-pressed="${S.timer === t}">${t ? t / 60 + ' min' : 'Off'}</button>`).join('')}
+        </div>
+      </section>
+
+      <div class="foot">
+        <button class="btn" data-act="start" ${ready ? '' : 'disabled'}>Start game</button>
+      </div>`);
+  },
+
+  pass() {
+    const r = S.round;
+    const name = S.players[r.order[r.ri]];
+    render(`
+      <div class="bar">${quitBtn}<span class="pill">Round ${S.rounds}</span></div>
+      <div class="pass">
+        <p class="muted">Pass the phone to</p>
+        <div class="who">${esc(name)}</div>
+        <p class="muted small">Nobody else look!</p>
+      </div>
+      <div class="dots" aria-label="${r.ri} of ${r.order.length} players have looked">${r.order.map((_, i) => `<i class="${i < r.ri ? 'on' : ''}"></i>`).join('')}</div>
+      <div class="foot"><button class="btn" data-act="reveal" data-autofocus>I’m ${esc(name)}, show me</button></div>`);
+  },
+
+  secret() {
+    const r = S.round;
+    const p = r.order[r.ri];
+    const isOut = r.outs.includes(p);
+    const last = r.ri === r.order.length - 1;
+    render(`
+      <div class="bar"><span></span><span class="pill">${esc(S.players[p])}</span></div>
+      <div class="secret ${isOut ? 'out' : ''}">
+        <div class="cat">Category: ${esc(r.cat)}</div>
+        ${isOut
+          ? `<div class="word">You’re the outsider</div><p class="muted">You don’t know the word. Blend in and work it out from everyone’s questions.</p>`
+          : `<p class="muted small">The secret word is</p><div class="word">${esc(r.word)}</div><p class="muted small">Don’t say it out loud.</p>`}
+      </div>
+      <div class="foot"><button class="btn ghost" data-act="hide" data-autofocus>${last ? 'Hide it & start' : 'Hide it & pass'}</button></div>`);
+  },
+
+  ask() {
+    const r = S.round;
+    const a = S.players[r.asker], t = S.players[r.target];
+    const left = r.timeLeft;
+    const timed = S.timer > 0;
+    render(`
+      <div class="bar">${quitBtn}${timed ? `<span class="clock ${left <= 30 ? 'low' : ''}" id="clock">${fmt(left)}</span>` : `<span class="pill">Question ${r.q}</span>`}</div>
+      ${timed ? `<div class="timer ${left <= 30 ? 'low' : ''}" id="tbar"><b style="width:${(left / S.timer) * 100}%"></b></div>` : ''}
+      <div class="asks">
+        <div id="tu">${timed && left <= 0 ? '<div class="timesup">Time’s up!</div>' : ''}</div>
+        <div class="nm a">${esc(a)}</div>
+        <div class="verb">asks</div>
+        <div class="nm t">${esc(t)}</div>
+        <p class="muted small" style="margin-top:8px">Category: ${esc(r.cat)}</p>
+      </div>
+      <div class="foot">
+        <button class="btn ghost" data-act="next" data-autofocus>Next question</button>
+        <button class="btn" data-act="tovote">Vote now</button>
+      </div>`);
+    if (timed && left > 0) startTimer();
+  },
+
+  vote() {
+    const r = S.round;
+    const need = r.outs.length;
+    render(`
+      <div class="bar">${quitBtn}<span class="pill">${r.accused.length}/${need} picked</span></div>
+      <h2>Who’s the outsider?</h2>
+      <p class="muted">Everyone point on 3… then tap the player who got the most fingers${need > 1 ? `. Pick ${need} players` : ''}.</p>
+      <div class="grid">
+        ${S.players.map((p, i) => `<button class="opt" data-act="accuse" data-i="${i}" aria-pressed="${r.accused.includes(i)}">${esc(p)}</button>`).join('')}
+      </div>
+      <div class="foot"><button class="btn" data-act="lockvote" ${r.accused.length === need ? '' : 'disabled'}>Reveal</button></div>`);
+  },
+
+  caught() {
+    // Reveal each accused player in turn, then hand to caught outsiders for their guess.
+    const r = S.round;
+    const lines = r.accused.map(i => {
+      const out = r.outs.includes(i);
+      return `<li${out ? ' class="top"' : ''}><span>${esc(S.players[i])}</span><span class="pts" style="color:${out ? 'var(--gold)' : 'var(--muted)'}">${out ? 'OUTSIDER!' : 'Not the outsider'}</span></li>`;
+    }).join('');
+    const caught = r.accused.filter(i => r.outs.includes(i));
+    const anyCaught = caught.length > 0;
+    render(`
+      <div class="bar"><span></span><span class="pill">Round ${S.rounds}</span></div>
+      <div class="verdict ${anyCaught ? 'win' : 'lose'}">
+        <div class="big">${anyCaught ? (caught.length === r.outs.length ? 'Caught!' : 'Got one!') : 'Wrong!'}</div>
+        <p class="muted" style="margin-top:8px">${anyCaught ? 'But it’s not over yet…' : `The outsider${r.outs.length > 1 ? 's got' : ' got'} away.`}</p>
+      </div>
+      <ul class="lines">${lines}</ul>
+      <div class="foot">
+        ${anyCaught
+          ? `<button class="btn gold" data-act="toguess">${esc(S.players[r.guessQueue[0]])}: last chance</button>`
+          : `<button class="btn" data-act="toresult">See the word</button>`}
+      </div>`);
+  },
+
+  guess() {
+    const r = S.round;
+    const p = r.guessQueue[r.gi];
+    const opts = r.options[p];
+    const done = r.guesses[p] !== undefined;
+    const last = r.gi === r.guessQueue.length - 1;
+    if (done && !last) {
+      // Another outsider still has to guess: say nothing about whether this one was right.
+      const nextName = S.players[r.guessQueue[r.gi + 1]];
+      render(`
+      <div class="bar"><span></span><span class="pill">Last chance</span></div>
+      <div class="pass">
+        <p class="muted">Guess locked in. No peeking at the answer yet!</p>
+        <p class="muted">Pass the phone to</p>
+        <div class="who">${esc(nextName)}</div>
+      </div>
+      <div class="foot"><button class="btn" data-act="afterguess" data-autofocus>I\u2019m ${esc(nextName)}, let me guess</button></div>`);
+      return;
+    }
+    render(`
+      <div class="bar"><span></span><span class="pill">Last chance</span></div>
+      <h2>${esc(S.players[p])}, guess the word</h2>
+      <p class="muted">Category: ${esc(r.cat)}. Pick it right and you still win points.</p>
+      <div class="grid">
+        ${opts.map(w => {
+          let cls = '';
+          if (done) { if (w === r.word) cls = 'right'; else if (w === r.guesses[p]) cls = 'wrong'; }
+          return `<button class="opt ${cls}" data-act="guessw" data-w="${esc(w)}" ${done ? 'disabled' : ''}>${esc(w)}</button>`;
+        }).join('')}
+      </div>
+      ${done ? `<div class="foot"><button class="btn" data-act="afterguess" data-autofocus>See results</button></div>` : ''}`);
+  },
+
+  result() {
+    const r = S.round;
+    const pts = r.awarded;
+    const lost = r.outs.filter(o => r.accused.includes(o) && r.guesses[o] !== r.word);
+    const escaped = r.outs.filter(o => !r.accused.includes(o));
+    const insidersWon = lost.length === r.outs.length;
+    const many = r.outs.length > 1;
+    const headline = insidersWon ? 'Insiders win!'
+      : lost.length ? 'Split round!'
+      : escaped.length ? (many ? 'Outsiders win!' : 'Outsider wins!')
+      : (many ? 'Outsiders steal it!' : 'Outsider steals it!');
+    const gained = Object.entries(pts).filter(([, v]) => v > 0);
+    render(`
+      <div class="bar"><span></span><span class="pill">Round ${S.rounds}</span></div>
+      <div class="verdict ${insidersWon ? 'win' : 'lose'}">
+        <div class="big">${headline}</div>
+        <p class="wordwas">The word was <b>${esc(r.word)}</b></p>
+        <p class="muted small" style="margin-top:8px">Outsider${r.outs.length > 1 ? 's' : ''}: ${r.outs.map(o => esc(S.players[o])).join(' & ')}</p>
+      </div>
+      ${gained.length ? `<section class="card"><div class="label">This round</div><ul class="lines">${gained.map(([i, v]) => `<li><span>${esc(S.players[i])}</span><span class="pts">+${v}</span></li>`).join('')}</ul></section>` : ''}
+      <div class="foot">
+        <button class="btn" data-act="toscores" data-autofocus>Scoreboard</button>
+      </div>`);
+  },
+
+  scores() {
+    const ranked = S.players.map((p, i) => ({ p, i, s: S.scores[p] || 0 })).sort((a, b) => b.s - a.s);
+    const top = ranked.length ? ranked[0].s : 0;
+    render(`
+      <div class="bar"><button class="link" data-act="home">← Menu</button><span class="pill">After ${S.rounds} round${S.rounds === 1 ? '' : 's'}</span></div>
+      <h2>Scoreboard</h2>
+      <ul class="lines">
+        ${ranked.map(x => `<li class="${x.s === top && top > 0 ? 'top' : ''}"><span>${esc(x.p)}${S.round && S.round.outs.includes(x.i) ? '<span class="tagout">outsider</span>' : ''}</span><span class="pts">${x.s}</span></li>`).join('')}
+      </ul>
+      <div class="foot">
+        <button class="btn" data-act="nextround" data-autofocus>Next round</button>
+        <button class="btn ghost" data-act="setup">Change players or settings</button>
+      </div>`);
+  }
+};
+
+/* ======================================================================
+   Game logic
+   ====================================================================== */
+function newRound() {
+  const n = S.players.length;
+  const cat = pick(S.cats);
+  const used = S.used[cat] || (S.used[cat] = []);
+  let pool = PACKS[cat].filter(w => !used.includes(w));
+  if (!pool.length) { S.used[cat] = []; pool = PACKS[cat].slice(); }
+  const word = pick(pool);
+  S.used[cat].push(word);
+
+  const k = outsidersAllowed();
+  const outs = shuffle([...Array(n).keys()]).slice(0, k);
+  const order = shuffle([...Array(n).keys()]);
+  const asker = rand(n);
+  S.rounds += 1;
+  S.round = {
+    cat, word, outs, order, ri: 0,
+    asker, target: pickTarget(asker, -1), q: 1,
+    timeLeft: S.timer, accused: [], guessQueue: [], gi: 0, guesses: {}, options: {}, awarded: {}
+  };
+  save();
+  go('pass');
+}
+
+function pickTarget(asker, prevAsker) {
+  const n = S.players.length;
+  const choices = [...Array(n).keys()].filter(i => i !== asker && i !== prevAsker);
+  return pick(choices.length ? choices : [...Array(n).keys()].filter(i => i !== asker));
+}
+
+function nextQuestion() {
+  const r = S.round;
+  const prev = r.asker;
+  r.asker = r.target;          // whoever was asked asks next
+  r.target = pickTarget(r.asker, prev);
+  r.q += 1;
+  SCREENS.ask();
+}
+
+function lockVote() {
+  const r = S.round;
+  r.guessQueue = r.accused.filter(i => r.outs.includes(i));
+  r.gi = 0;
+  r.guessQueue.forEach(p => {
+    const decoys = shuffle(PACKS[r.cat].filter(w => w !== r.word)).slice(0, 7);
+    r.options[p] = shuffle([r.word, ...decoys]);
+  });
+  buzz(80);
+  go('caught');
+}
+
+function scoreRound() {
+  const r = S.round;
+  const add = (i, v) => { r.awarded[i] = (r.awarded[i] || 0) + v; };
+  r.outs.forEach(o => {
+    if (!r.accused.includes(o)) add(o, PTS.escape);
+    else if (r.guesses[o] === r.word) add(o, PTS.caughtGuessed);
+    else S.players.forEach((_, i) => { if (!r.outs.includes(i)) add(i, PTS.insiderCatch); });
+  });
+  Object.entries(r.awarded).forEach(([i, v]) => {
+    const name = S.players[i];
+    S.scores[name] = (S.scores[name] || 0) + v;
+  });
+  save();
+}
+
+/* ---------- timer ---------- */
+let tick = null;
+function fmt(s) { s = Math.max(0, s); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+function startTimer() {
+  if (tick) return;            // already counting; re-renders keep the same interval
+  tick = setInterval(() => {
+    const r = S.round;
+    if (!r || S.screen !== 'ask') return stopTimer();
+    r.timeLeft -= 1;
+    const clock = $('#clock'), bar = $('#tbar');
+    if (clock) { clock.textContent = fmt(r.timeLeft); clock.classList.toggle('low', r.timeLeft <= 30); }
+    if (bar) { bar.classList.toggle('low', r.timeLeft <= 30); bar.firstElementChild.style.width = Math.max(0, r.timeLeft / S.timer * 100) + '%'; }
+    if (r.timeLeft <= 0) {
+      stopTimer();
+      const tu = $('#tu'); if (tu) tu.innerHTML = '<div class="timesup">Time’s up!</div>';
+      buzz([200, 100, 200]);
+    }
+  }, 1000);
+}
+function stopTimer() { if (tick) { clearInterval(tick); tick = null; } }
+
+/* ======================================================================
+   Input
+   ====================================================================== */
+function addPlayer() {
+  const input = $('#nameIn');
+  if (!input) return;
+  const name = input.value.trim().replace(/\s+/g, ' ');
+  const hint = $('#nameHint');
+  if (!name) { input.focus(); return; }
+  if (S.players.some(p => p.toLowerCase() === name.toLowerCase())) { if (hint) hint.textContent = `“${name}” is already playing.`; input.select(); return; }
+  if (S.players.length >= MAX_PLAYERS) return;
+  S.players.push(name);
+  save();
+  SCREENS.setup();
+  const again = $('#nameIn'); if (again && !again.disabled) again.focus();
+}
+
+document.addEventListener('submit', (e) => {
+  if (e.target.matches('[data-form="add"]')) { e.preventDefault(); addPlayer(); }
+});
+
+document.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-act]');
+  if (!el || el.disabled) return;
+  const act = el.dataset.act;
+  const r = S.round;
+  switch (act) {
+    case 'home': go('home'); break;
+    case 'how': go('how'); break;
+    case 'setup': go('setup'); break;
+    case 'continue': newRound(); break;
+
+    case 'rm': {
+      const name = S.players[+el.dataset.i];
+      S.players.splice(+el.dataset.i, 1);
+      delete S.scores[name];
+      if (S.players.length < TWO_OUT_MIN) S.outsiders = 1;
+      save(); SCREENS.setup(); break;
+    }
+    case 'allcats': S.cats = CATS.slice(); save(); SCREENS.setup(); break;
+    case 'cat': {
+      const c = el.dataset.c;
+      if (S.cats.length === CATS.length) S.cats = [c];           // from "All", tap one to narrow down
+      else if (S.cats.includes(c)) S.cats = S.cats.filter(x => x !== c);
+      else S.cats.push(c);
+      if (!S.cats.length) S.cats = CATS.slice();                  // never leave zero selected
+      save(); SCREENS.setup(); break;
+    }
+    case 'outs': S.outsiders = +el.dataset.v; save(); SCREENS.setup(); break;
+    case 'timer': S.timer = +el.dataset.v; save(); SCREENS.setup(); break;
+    case 'start':
+      // A fresh game: reset scores for this lineup.
+      S.scores = {}; S.players.forEach(p => S.scores[p] = 0); S.rounds = 0; S.used = {};
+      newRound(); break;
+
+    case 'reveal': buzz(30); go('secret'); break;
+    case 'hide':
+      if (r.ri < r.order.length - 1) { r.ri += 1; go('pass'); }
+      else { r.timeLeft = S.timer; go('ask'); }
+      break;
+
+    case 'next': nextQuestion(); break;
+    case 'tovote': go('vote'); break;
+
+    case 'accuse': {
+      const i = +el.dataset.i, need = r.outs.length;
+      if (r.accused.includes(i)) r.accused = r.accused.filter(x => x !== i);
+      else if (need === 1) r.accused = [i];
+      else if (r.accused.length < need) r.accused.push(i);
+      SCREENS.vote(); break;
+    }
+    case 'lockvote': lockVote(); break;
+    case 'toguess': go('guess'); break;
+    case 'guessw': {
+      const p = r.guessQueue[r.gi];
+      r.guesses[p] = el.dataset.w;
+      buzz(r.guesses[p] === r.word ? [60, 60, 60] : 250);
+      SCREENS.guess(); break;
+    }
+    case 'afterguess':
+      if (r.gi < r.guessQueue.length - 1) { r.gi += 1; SCREENS.guess(); }
+      else { scoreRound(); go('result'); }
+      break;
+    case 'toresult': scoreRound(); go('result'); break;
+    case 'toscores': go('scores'); break;
+    case 'nextround': newRound(); break;
+
+    case 'quit':
+      if (confirm('Quit this round? It won’t count.')) { S.rounds = Math.max(0, S.rounds - 1); S.round = null; save(); go('home'); }
+      break;
+  }
+});
+
+/* ---------- start ---------- */
+go('home');
+
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+}
+</script>
 </body>
 </html>
